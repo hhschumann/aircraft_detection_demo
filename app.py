@@ -56,31 +56,32 @@ def process_video(video_path, model_session, input_shape):
     cap.release()
     return frame_segments
 
-# Streamlit UI
-st.title("YOLO Object Detection on Video")
+if __name__=="__main__":
+    # Streamlit UI
+    st.title("YOLO Object Detection on Video")
 
-# File uploader
-uploaded_file = st.file_uploader("Upload an MP4 video", type=["mp4"])
-onnx_path = st.text_input("Path to YOLO ONNX Model", value="yolov4.onnx")
+    # File uploader
+    uploaded_file = st.file_uploader("Upload an MP4 video", type=["mp4"])
+    onnx_path = st.text_input("Path to YOLO ONNX Model", value="yolov4.onnx")
 
-if uploaded_file and onnx_path:
-    st.write("Processing video...")
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_file:
-        temp_file.write(uploaded_file.read())
-        video_path = temp_file.name
+    if uploaded_file and onnx_path:
+        st.write("Processing video...")
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_file:
+            temp_file.write(uploaded_file.read())
+            video_path = temp_file.name
 
-    # Load model
-    yolo_model = load_model(onnx_path)
-    
-    # Process video
-    input_shape = (640, 640)  # Adjust based on your YOLO model
-    detections = process_video(video_path, yolo_model, input_shape)
+        # Load model
+        yolo_model = load_model(onnx_path)
+        
+        # Process video
+        input_shape = (640, 640)  # Adjust based on your YOLO model
+        detections = process_video(video_path, yolo_model, input_shape)
 
-    # Display results
-    st.write(f"Total segments with objects: {len(detections)}")
-    for detection in detections:
-        frame_no = detection["frame"]
-        classes_detected = detection["classes"]
-        st.write(f"Frame: {frame_no}, Classes: {classes_detected}")
+        # Display results
+        st.write(f"Total segments with objects: {len(detections)}")
+        for detection in detections:
+            frame_no = detection["frame"]
+            classes_detected = detection["classes"]
+            st.write(f"Frame: {frame_no}, Classes: {classes_detected}")
 
-    os.remove(video_path)
+        os.remove(video_path)
