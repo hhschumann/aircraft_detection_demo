@@ -4,6 +4,10 @@ runs
 *.zip
 Planes.v1i.yolov11
 *.onnx
+*ncnn*
+*.torchscript
+*.DS_Store
+app2.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
