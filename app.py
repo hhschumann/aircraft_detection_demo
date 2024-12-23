@@ -90,28 +90,18 @@ def process_image(image_path, model, selected_ind):
         
 
 if __name__=="__main__":
-    st.title("Object Detection Demo")
+    st.title("Aircraft Detection Demo")
 
     model_selection = st.sidebar.selectbox(
         "Model",
-        ("yolov11_aircraft_detect", "yolov11_out_of_the_box"),
-    )
-
-    model_size = st.sidebar.selectbox(
-        "Model Size",
         ("nano", "small", "medium"),
     )
-
     suffix_map = {
         "nano":"n",
         "small":"s",
         "medium":"m"
     }
-    if model_selection == "yolov11_aircraft_detect":
-        model_path = f"./assets/best{suffix_map[model_size]}.pt"
-    elif model_selection == "yolov11_out_of_the_box":
-        model_path = f"./assets/yolo11{suffix_map[model_size]}.pt"
-
+    model_path = f"./assets/best{suffix_map[model_selection]}.pt"
     model = YOLO(model_path)
     class_names = list(model.names.values())  
 
@@ -123,7 +113,8 @@ if __name__=="__main__":
 
     source = st.sidebar.selectbox(
         "Source",
-        ("webcam", "video", "image"),
+        #("webcam", "video", "image"),
+        ("video", "image"),
     )
 
     conf = float(st.sidebar.slider("Confidence Threshold", 0.0, 1.0, 0.5, 0.01))

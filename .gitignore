@@ -7,6 +7,9 @@ Planes.v1i.yolov11
 *.torchscript
 *.DS_Store
 app2.py
+small
+medium
+nano
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
