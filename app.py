@@ -5,7 +5,7 @@ import tempfile
 from ultralytics import YOLO
 import time
 
-def process_video(video_path, model, selected_ind):
+def process_video_sequenced(video_path, model, selected_ind):
     videocapture = cv2.VideoCapture(video_path)  
     if not videocapture.isOpened():
         st.error("Could not open webcam.")
@@ -51,6 +51,34 @@ def process_video(video_path, model, selected_ind):
                 st.stop()  
 
 
+def process_video(video_path, model, selected_ind):
+    videocapture = cv2.VideoCapture(video_path)  
+    if not videocapture.isOpened():
+        st.error("Could not open webcam.")
+
+    fps_display = st.sidebar.empty() 
+    stop_button = st.button("Stop Demo")  
+    count = 0
+    while videocapture.isOpened():
+        success, frame = videocapture.read()
+        if not success: break
+        if (not half_fr) or (count % 2==0):
+            prev_time = time.time()  
+            results = model(frame, conf=conf, iou=iou, classes=selected_ind)
+            annotated_frame = results[0].plot()  
+            curr_time = time.time()
+            fps = 1 / (curr_time - prev_time)
+
+            org_frame.image(frame, channels="BGR")
+            ann_frame.image(annotated_frame, channels="BGR")
+
+            fps_display.metric("FPS", f"{fps:.2f}")
+        count+=1
+        if stop_button:
+            videocapture.release()  
+            cv2.destroyAllWindows()
+            st.stop()  
+
 def process_webcam(video_path, model, selected_ind):
     videocapture = cv2.VideoCapture(video_path)  
     if not videocapture.isOpened():
@@ -60,10 +88,8 @@ def process_webcam(video_path, model, selected_ind):
     stop_button = st.button("Stop Demo")  
     while videocapture.isOpened():
         success, frame = videocapture.read()
-        if not success:
-            st.warning("Failed to read frame from webcam...")
-            break
-
+        if not success: break
+        
         prev_time = time.time()  
         results = model(frame, conf=conf, iou=iou, classes=selected_ind)
         annotated_frame = results[0].plot()  
@@ -79,7 +105,6 @@ def process_webcam(video_path, model, selected_ind):
             videocapture.release()  
             cv2.destroyAllWindows()
             st.stop()  
-
 
 def process_image(image_path, model, selected_ind):
     results = model([image_path], conf=conf, iou=iou, classes=selected_ind)
@@ -139,7 +164,7 @@ if __name__=="__main__":
                 out.write(g.read())  # Read bytes into file
             input_file_path = "upload.mp4"
     
-        half_fr = st.sidebar.checkbox("Reduce frame rate (0.5x)")
+        half_fr = st.sidebar.checkbox("Reduce input frame rate (0.5x)")
 
 
     elif source == "webcam":
