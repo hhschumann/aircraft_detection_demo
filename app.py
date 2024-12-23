@@ -129,14 +129,19 @@ if __name__=="__main__":
     conf = float(st.sidebar.slider("Confidence Threshold", 0.0, 1.0, 0.5, 0.01))
     iou = float(st.sidebar.slider("IoU Threshold", 0.0, 1.0, 0.5, 0.01))
 
-    if source in ["video", "image"]:
+    if source == "image":
+        input_file = st.sidebar.file_uploader("Upload Image File", type=["jpeg", "jpg", "png"])
+        if input_file:
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".jpeg") as temp_file:
+                temp_file.write(input_file.read())
+                input_file_path = temp_file.name
+    elif source == "video":
         input_file = st.sidebar.file_uploader("Upload Video File", type=["mp4", "mov", "avi", "mkv"])
         if input_file:
             with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_file:
                 temp_file.write(input_file.read())
                 input_file_path = temp_file.name
-        if source == "video":
-            half_fr = st.sidebar.checkbox("Reduce frame rate (0.5x)")
+        half_fr = st.sidebar.checkbox("Reduce frame rate (0.5x)")
     elif source == "webcam":
         input_file_path = 0
 
