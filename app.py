@@ -152,7 +152,7 @@ if __name__=="__main__":
         if source == "webcam":
             process_webcam(video_path=input_file_path, model=model, selected_ind=selected_ind)
         elif source == "video":
-            process_video(video_path=input_file_path, model=model, selected_ind=selected_ind)
+            process_webcam(video_path=input_file_path, model=model, selected_ind=selected_ind)
         elif source == "image":
             process_image(input_file_path, model, selected_ind)
     
