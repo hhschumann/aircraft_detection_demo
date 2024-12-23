@@ -8,6 +8,53 @@ def process_video(video_path, model, selected_ind):
     videocapture = cv2.VideoCapture(video_path)  
     if not videocapture.isOpened():
         st.error("Could not open webcam.")
+    fps = int(videocapture.get(cv2.CAP_PROP_FPS))
+    fps = fps * 0.5 if half_fr else fps
+    n_frames = int(videocapture.get(cv2.CAP_PROP_FRAME_COUNT))
+
+    progress_text = "Running model on video"
+    progress_bar = st.progress(0, text=progress_text)
+
+    stop_button = st.button("Stop Demo") 
+
+    original_frames = []
+    annotated_frames = []
+    count=0
+
+    while count < n_frames:
+        if (not half_fr) or (count % 2==0):
+            success, frame = videocapture.read()
+            if not success: break
+            results = model(frame, conf=conf, iou=iou, classes=selected_ind)
+            original_frames.append(frame)
+            annotated_frames.append(results[0].plot()) 
+        count+=1
+        percent_complete = int(100*(count/n_frames))
+        progress_bar.progress(percent_complete, text=f"{progress_text} ({percent_complete}%)")
+
+        if stop_button:
+            videocapture.release()  
+            cv2.destroyAllWindows()
+            st.stop()  
+        
+    progress_bar.empty()
+    while True:
+        for i in range(len(annotated_frames)-1):
+            print(i)
+            org_frame.image(original_frames[i], channels="BGR")
+            ann_frame.image(annotated_frames[i], channels="BGR")
+            time.sleep(1/fps)
+
+            if stop_button:
+                videocapture.release()  
+                cv2.destroyAllWindows()
+                st.stop()  
+
+
+def process_webcam(video_path, model, selected_ind):
+    videocapture = cv2.VideoCapture(video_path)  
+    if not videocapture.isOpened():
+        st.error("Could not open webcam.")
 
     fps_display = st.sidebar.empty() 
     stop_button = st.button("Stop Demo")  
@@ -26,14 +73,13 @@ def process_video(video_path, model, selected_ind):
         org_frame.image(frame, channels="BGR")
         ann_frame.image(annotated_frame, channels="BGR")
 
-        if stop_button:
-            videocapture.release()  
-            st.stop()  
-
         fps_display.metric("FPS", f"{fps:.2f}")
 
-    videocapture.release()
-    cv2.destroyAllWindows()
+        if stop_button:
+            videocapture.release()  
+            cv2.destroyAllWindows()
+            st.stop()  
+
 
 def process_image(image_path, model, selected_ind):
     results = model([image_path], conf=conf, iou=iou, classes=selected_ind)
@@ -82,8 +128,8 @@ if __name__=="__main__":
         ("webcam", "video", "image"),
     )
 
-    conf = float(st.sidebar.slider("Confidence Threshold", 0.0, 1.0, 0.25, 0.01))
-    iou = float(st.sidebar.slider("IoU Threshold", 0.0, 1.0, 0.45, 0.01))
+    conf = float(st.sidebar.slider("Confidence Threshold", 0.0, 1.0, 0.5, 0.01))
+    iou = float(st.sidebar.slider("IoU Threshold", 0.0, 1.0, 0.5, 0.01))
 
     if source in ["video", "image"]:
         input_file = st.sidebar.file_uploader("Upload Video File", type=["mp4", "mov", "avi", "mkv"])
@@ -91,6 +137,8 @@ if __name__=="__main__":
             with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_file:
                 temp_file.write(input_file.read())
                 input_file_path = temp_file.name
+        if source == "video":
+            half_fr = st.sidebar.checkbox("Reduce frame rate (0.5x)")
     elif source == "webcam":
         input_file_path = 0
 
@@ -98,7 +146,9 @@ if __name__=="__main__":
         col1, col2 = st.columns(2)
         org_frame = col1.empty()
         ann_frame = col2.empty()
-        if source in ["video", "webcam"]:
+        if source == "webcam":
+            process_webcam(video_path=input_file_path, model=model, selected_ind=selected_ind)
+        elif source == "video":
             process_video(video_path=input_file_path, model=model, selected_ind=selected_ind)
         elif source == "image":
             process_image(input_file_path, model, selected_ind)

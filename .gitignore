@@ -1,6 +1,5 @@
 # Datasets
 runs
-*.pt
 *.zip
 Planes.v1i.yolov11
 *.onnx
