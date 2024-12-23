@@ -40,7 +40,6 @@ def process_video(video_path, model, selected_ind):
     progress_bar.empty()
     while True:
         for i in range(len(annotated_frames)-1):
-            print(i)
             org_frame.image(original_frames[i], channels="BGR")
             ann_frame.image(annotated_frames[i], channels="BGR")
             time.sleep(1/fps)
@@ -146,4 +145,6 @@ if __name__=="__main__":
             process_video(video_path=input_file_path, model=model, selected_ind=selected_ind)
         elif source == "image":
             process_image(input_file_path, model, selected_ind)
+    
+    
         
