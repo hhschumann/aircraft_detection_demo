@@ -102,20 +102,18 @@ if __name__=="__main__":
         ("nano", "small", "medium"),
     )
 
+    suffix_map = {
+        "nano":"n",
+        "small":"s",
+        "medium":"m"
+    }
     if model_selection == "yolov11_aircraft_detect":
-        model_path = f"./{model_size}/runs/detect/train/weights/best.onnx"
-        model = YOLO(model_path)
-        class_names = list(model.names.values())  
-
+        model_path = f"{model_size}/best{suffix_map[model_size]}.onnx"
     elif model_selection == "yolov11_out_of_the_box":
-        suffix_map = {
-            "nano":"n",
-            "small":"s",
-            "medium":"m"
-        }
         model_path = f"{model_size}/yolo11{suffix_map[model_size]}.onnx"
-        model = YOLO(model_path)
-        class_names = list(model.names.values())  
+
+    model = YOLO(model_path)
+    class_names = list(model.names.values())  
 
     selected_classes = st.sidebar.multiselect("Classes", ["all"] + class_names, default="all")
     if "all" in selected_classes:
