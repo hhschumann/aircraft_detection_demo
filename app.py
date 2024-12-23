@@ -1,5 +1,6 @@
 import streamlit as st
 import cv2
+import io
 import tempfile
 from ultralytics import YOLO
 import time
@@ -127,11 +128,20 @@ if __name__=="__main__":
                 input_file_path = temp_file.name
     elif source == "video":
         input_file = st.sidebar.file_uploader("Upload Video File", type=["mp4", "mov", "avi", "mkv"])
-        if input_file:
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_file:
-                temp_file.write(input_file.read())
-                input_file_path = temp_file.name
+        # if input_file:
+        #     with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_file:
+        #         temp_file.write(input_file.read())
+        #         input_file_path = temp_file.name
+        if input_file is not None:
+            g = io.BytesIO(input_file.read())  # BytesIO Object
+            vid_location = "upload.mp4"
+            with open(vid_location, "wb") as out:  # Open temporary file as bytes
+                out.write(g.read())  # Read bytes into file
+            input_file_path = "upload.mp4"
+    
         half_fr = st.sidebar.checkbox("Reduce frame rate (0.5x)")
+
+
     elif source == "webcam":
         input_file_path = 0
 
