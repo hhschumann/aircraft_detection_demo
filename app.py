@@ -164,7 +164,7 @@ if __name__=="__main__":
                 out.write(g.read())  # Read bytes into file
             input_file_path = "upload.mp4"
     
-        half_fr = st.sidebar.checkbox("Reduce input frame rate (0.5x)")
+        half_fr = st.sidebar.checkbox("Reduce input frame rate by 0.5x (recommended)", value=True)
 
 
     elif source == "webcam":
